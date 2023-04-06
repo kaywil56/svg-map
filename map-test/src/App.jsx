@@ -1,6 +1,4 @@
-import map from "./assets/world.svg";
-import React, { useState, useRef, useEffect } from "react";
-import SVGInject from "@iconfu/svg-inject";
+import React, { useState, useRef } from "react";
 
 const App = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -40,8 +38,9 @@ const App = () => {
       let details = e.target.attributes;
       target.style.opacity = 0.6;
       target.style.stroke = "white";
-      if (details?.className?.value) {
-        setName(details.className.value);
+      
+      if (details?.class?.textContent) {
+        setName(details.class.textContent);
       } else {
         setName(details.name.value);
       }
