@@ -56,18 +56,20 @@ const App = () => {
     }
   };
 
+  const handleZoom  = (e) => {
+    e.preventDefault()
+    if(e.deltaY < 0){
+      setZoom(zoom + 1)
+    }else{
+      setZoom(zoom - 1)
+    }
+  }  
+
   return (
     <>
       <h1>{name}</h1>
-      <input
-        value={zoom}
-        min={1}
-        max={5}
-        type="number"
-        onChange={(e) => setZoom(e.target.value)}
-      />
-
-      <div className="outer">
+      <div className="outer"
+      onWheel={handleZoom}>
         <div
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
