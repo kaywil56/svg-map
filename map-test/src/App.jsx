@@ -9,7 +9,7 @@ const App = () => {
   });
   const [start, setStart] = useState({ x: 0, y: 0 });
   const mapRef = useRef(null);
-  const reshapeRef = useRef(null)
+  const reshapeRef = useRef(null);
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ const App = () => {
   const handleZoom = (e) => {
     e.preventDefault();
     const rect = reshapeRef.current.getBoundingClientRect();
-    const newZoom = zoom * (e.deltaY > 0 ? 1/1.2 : 1.2);
+    const newZoom = zoom * (e.deltaY > 0 ? 1 / 1.2 : 1.2);
     const xs = (e.clientX - rect.left - points.x) / zoom;
     const ys = (e.clientY - rect.top - points.y) / zoom;
     const newX = e.clientX - rect.left - xs * newZoom;
@@ -51,11 +51,11 @@ const App = () => {
       let details = e.target.attributes;
       target.style.opacity = 0.6;
       target.style.stroke = "white";
-      // if (details?.className?.value) {
-      //   setName(details.className.value);
-      // } else {
-      //   setName(details.name.value);
-      // }
+      if (details?.class?.textContent) {
+        setName(details.class.textContent);
+      } else {
+        setName(details.name.value);
+      }
     }
   };
 
@@ -69,8 +69,7 @@ const App = () => {
 
   return (
     <>
-      <div className="outer"
-      ref={reshapeRef}>
+      <div className="outer" ref={reshapeRef}>
         <div
           id="reshape"
           onMouseDown={handleMouseDown}
