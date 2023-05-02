@@ -1,36 +1,47 @@
-import map from "./assets/world.svg";
-import React, { useState, useRef, useEffect } from "react";
-import SVGInject from "@iconfu/svg-inject";
+import React, { useState, useRef } from "react";
 
 const App = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
-  const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
-  const [name, setName] = useState(null);
-  const [zoom, setZoom] = useState(2);
+  const [zoom, setZoom] = useState(1);
+  const [points, setPoints] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [start, setStart] = useState({ x: 0, y: 0 });
   const mapRef = useRef(null);
+  const reshapeRef = useRef(null)
 
-  const handleMouseDown = (event) => {
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    setStart({ x: e.clientX - points.x, y: e.clientY - points.y });
     setDragging(true);
-    setInitialPosition({ x: event.clientX, y: event.clientY });
-  };
-
-  const handleMouseMove = (event) => {
-    if (dragging) {
-      const deltaX = event.clientX - initialPosition.x;
-      const deltaY = event.clientY - initialPosition.y;
-
-      setPosition((prevPosition) => ({
-        x: prevPosition.x + deltaX,
-        y: prevPosition.y + deltaY,
-      }));
-
-      setInitialPosition({ x: event.clientX, y: event.clientY });
-    }
   };
 
   const handleMouseUp = () => {
     setDragging(false);
+  };
+
+  const handleMouseMove = (e) => {
+    e.preventDefault();
+    if (!dragging) {
+      return;
+    }
+    setPoints({
+      x: e.clientX - start.x,
+      y: e.clientY - start.y,
+    });
+  };
+
+  const handleZoom = (e) => {
+    e.preventDefault();
+    const rect = reshapeRef.current.getBoundingClientRect();
+    const newZoom = zoom * (e.deltaY > 0 ? 1/1.2 : 1.2);
+    const xs = (e.clientX - rect.left - points.x) / zoom;
+    const ys = (e.clientY - rect.top - points.y) / zoom;
+    const newX = e.clientX - rect.left - xs * newZoom;
+    const newY = e.clientY - rect.top - ys * newZoom;
+    setZoom(newZoom);
+    setPoints({ x: newX, y: newY });
   };
 
   const handleMouseOver = (e) => {
@@ -40,11 +51,11 @@ const App = () => {
       let details = e.target.attributes;
       target.style.opacity = 0.6;
       target.style.stroke = "white";
-      if (details?.className?.value) {
-        setName(details.className.value);
-      } else {
-        setName(details.name.value);
-      }
+      // if (details?.className?.value) {
+      //   setName(details.className.value);
+      // } else {
+      //   setName(details.name.value);
+      // }
     }
   };
 
@@ -56,30 +67,24 @@ const App = () => {
     }
   };
 
-  const handleZoom  = (e) => {
-    e.preventDefault()
-    if(e.deltaY < 0){
-      setZoom(zoom + 1)
-    }else{
-      setZoom(zoom - 1)
-    }
-  }  
-
   return (
     <>
-      <h1>{name}</h1>
       <div className="outer"
-      onWheel={handleZoom}>
+      ref={reshapeRef}>
         <div
+          id="reshape"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
-          style={{ position: "relative", left: position.x, top: position.y }}
+          onMouseOver={handleMouseOver}
+          onWheel={handleZoom}
+          style={{
+            transform: `translate(${points.x}px, ${points.y}px) scale(${zoom})`,
+          }}
+          // style={{ position: "relative", left: position.x, top: position.y }}
         >
           <svg
-            onMouseOver={handleMouseOver}
             onMouseOut={handleMouseOut}
-            style={{ transform: `scale(${zoom})` }}
             preserveAspectRatio="xMidYMid meet"
             viewBox="0 0 2000 857"
             xmlns="http://www.w3.org/2000/svg"
